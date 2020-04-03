@@ -146,7 +146,10 @@ $tasksList.addEventListener('click', baseEvent => {
   if (targetClassList.contains('btn-done')) {
     tasks.find(task => task.id === currentId).complited = true;
 
-    $tasksList.querySelector('.task-text').classList.add('task-done-text');
+    element
+      .closest('.task-item')
+      .querySelector('.task-text')
+      .classList.add('task-done-text');
 
     element.disabled = true;
 
@@ -159,20 +162,32 @@ $tasksList.addEventListener('click', baseEvent => {
     tasks.forEach(task => $tasksList.append(createTask(task)));
   } else if (targetClassList.contains('btn-edit')) {
     createEdition(element);
-
-    $tasksList.addEventListener('click', editEvent => {
-      const editElement = editEvent.target;
-      const editTargetClassList = editElement.classList;
-
-      if (editTargetClassList.contains('btn-save')) {
-        $tasksList.querySelector('.task-text').innerText = $tasksList.querySelector('.task-text-edit').value;
-
-        removeEdition($tasksList);
-        showButtons($tasksList);
-      } else if (editTargetClassList.contains('btn-cancel')) {
-        removeEdition($tasksList);
-        showButtons($tasksList);
-      }
-    });
   }
 });
+
+$tasksList.addEventListener('click', editEvent => {
+  const element = editEvent.target;
+  const $taskItem = element.closest('.task-item');
+  const targetID = $taskItem.getAttribute('data-id');
+  const editElement = editEvent.target;
+  const editTargetClassList = editElement.classList;
+
+  if (editTargetClassList.contains('btn-save')) {
+    const inputText = $tasksList.querySelector('.task-text-edit').value;
+    $tasksList.querySelector('.task-text').innerText = inputText;
+
+    tasks.forEach(item => {
+      if (item.id === targetID) {
+        item.value = inputText;
+      }
+    });
+
+    removeEdition($taskItem);
+    showButtons($taskItem);
+  } else if (editTargetClassList.contains('btn-cancel')) {
+    removeEdition($taskItem);
+    showButtons($taskItem);
+  }
+});
+
+// после первого клика, второй клик в событии уже сразу на два
